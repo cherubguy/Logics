@@ -131,8 +131,8 @@ public class Tree {
 		System.out.println("Branch members: " + members);
 		for(Tree individual_atom : members) {
 			if (individual_atom.data.str.length() <= 2) {
-				System.out.println("FIRST LOOP");
-				System.out.println(individual_atom);
+				System.out.println();
+				System.out.println("Individual atom: " + individual_atom);
 				if (individual_atom.data.str.charAt(0) == '~') {
 					tilda_1 = true;
 				}else {
@@ -141,32 +141,20 @@ public class Tree {
 				System.out.println(tilda_1);
 				for(Tree compared_atom : members) {
 					if (compared_atom.data.str.length() <= 2){
-						System.out.println("SECOND LOOP");
-						System.out.println(compared_atom);
+						System.out.println("Compared atom: " + compared_atom);
 						if (tilda_1 == true) {
-							System.out.println("hello");
 							if (compared_atom.data.str.equals(individual_atom.data.str.substring(1))) {
 								System.out.println("CONTRADICTION!");
+								System.out.println();
 								return true; // there is a contradiction
 							}
 						}else {
 							if (compared_atom.data.str.equals('~' + individual_atom.data.str)) {
 								System.out.println("CONTRADICTION!");
+								System.out.println();
 								return true; // there is a contradiction
 							}
 						}
-						//if (compared_atom.data.str.charAt(0) == '~') {
-							//tilda_2 = true;
-						//} else {
-							//tilda_2 = false;
-						//}
-						//System.out.println(tilda_2);
-						//if(compared_atom.node.data.str == '~' + individual_atom.node.data.str ||
-								//compared_atom.node.data.str == individual_atom.node.data.str.substring(1)) {
-						//if(tilda_1 != tilda_2) {
-							//System.out.println("CONTRADICTION!");
-							//return true; // there is a contradiction
-						//}		
 					}
 				}
 			}
@@ -190,58 +178,13 @@ public class Tree {
 		System.out.println();
 		if (count == empty_nodes.size()) {
 			System.out.println("The inference is valid in CL");
+			System.out.println();
 			return true; // is CL valid, no counter examples
 		}else {
 			System.out.println("The inference is not valid in CL");
+			System.out.println();
 			return false; // is not CL valid, counter example
 		}
-	}
-	public boolean check_CL_val2() {
-		boolean tilda_1 = false;
-		boolean tilda_2 = false;
-		ArrayList<Tuple> x = new ArrayList<Tuple>();
-		ArrayList<Tuple> atoms = this.atoms_and_branches(x);
-		System.out.println(atoms);
-		for(int i = 0; i < atoms.size(); i ++) {
-			System.out.println("FIRST LOOP");
-			Tuple individual_atom = atoms.get(i);
-			System.out.println(individual_atom);
-			if (individual_atom.node.data.str.charAt(0) == '~') {
-				tilda_1 = true;
-			}else {
-				tilda_1 = false;
-			}
-			System.out.println(tilda_1);
-			for(int j = 0; j < atoms.size(); j ++) {
-				System.out.println("SECOND LOOP");
-				Tuple compared_atom = atoms.get(j);
-				System.out.println(compared_atom);
-				if (compared_atom.node.data.str.charAt(0) == '~') {
-					tilda_2 = true;
-				} else {
-					tilda_2 = false;
-				}
-				System.out.println(tilda_2);
-				//if(compared_atom.node.data.str == '~' + individual_atom.node.data.str ||
-						//compared_atom.node.data.str == individual_atom.node.data.str.substring(1)) {
-				if(tilda_1 != tilda_2) {
-					if(compared_atom.branch_nums.size() == individual_atom.branch_nums.size()) {
-						if(compared_atom.branch_nums != individual_atom.branch_nums) {
-							return false;
-						}
-					}else if(compared_atom.branch_nums.size() > individual_atom.branch_nums.size()) {
-						if(individual_atom.branch_nums == compared_atom.branch_nums.subList(0,  individual_atom.branch_nums.size())) {
-							return false;
-						}
-					}else if(compared_atom.branch_nums.size() < individual_atom.branch_nums.size()) {
-						if (compared_atom.branch_nums == individual_atom.branch_nums.subList(0,  compared_atom.branch_nums.size())){
-							return false;
-						}
-					}
-				}
-			}
-		}
-		return true;
 	}
 	public void print_branch_breakdown(char operator, boolean tilda, Tree empty_node) {
 		if(tilda == true) {
@@ -286,9 +229,6 @@ public class Tree {
 		String_1 new_expression2 = parts[1].balance_brackets();
 		System.out.println(new_expression1.operator);
 		System.out.println(new_expression2.operator);
-		//String_1 new_expression1 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets(); // HERE
-		
-		//String_1 new_expression2 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets();
 		
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
@@ -303,9 +243,6 @@ public class Tree {
 		String_1[] parts = this.data.find_parts(operator_i);
 		String_1 new_expression1 = parts[0].balance_brackets();
 		String_1 new_expression2 = parts[1].balance_brackets();
-		//String_1 new_expression1 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets();
-		
-		//String_1 new_expression2 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets(); 
 		
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
@@ -318,11 +255,8 @@ public class Tree {
 	}
 	public void branch_if(char operator, int operator_i, boolean tilda, ArrayList<Tree> empty_nodes) {
 		String_1[] parts = this.data.find_parts(operator_i);
-		String_1 new_expression1 = parts[0].balance_brackets().add_tilda(parts[0].find_operator2().index);
+		String_1 new_expression1 = parts[0].balance_brackets().add_tilda(parts[0].find_operator().index);
 		String_1 new_expression2 = parts[1].balance_brackets();
-		//String_1 new_expression1 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets().add_tilda(operator_i);
-		
-		//String_1 new_expression2 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets();
 		
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
@@ -338,14 +272,8 @@ public class Tree {
 		String_1 new_expression1 = parts[0].balance_brackets();
 		String_1 new_expression2 = parts[1].balance_brackets();
 		
-		String_1 ne3 = new_expression1.add_tilda(new_expression1.find_operator2().index);
-		String_1 ne4 = new_expression2.add_tilda(new_expression2.find_operator2().index);
-		//String_1 new_expression1 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets();
-		
-		//String_1 new_expression2 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets();
-		
-		//String_1 ne3 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets().add_tilda(operator_i);
-		//String_1 ne4 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets().add_tilda(operator_i);
+		String_1 ne3 = new_expression1.add_tilda(new_expression1.find_operator().index);
+		String_1 ne4 = new_expression2.add_tilda(new_expression2.find_operator().index);
 		
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
@@ -365,11 +293,8 @@ public class Tree {
 	// =========== FALSE vvv
 	public void lane_false_or(char operator, int operator_i, boolean tilda, ArrayList<Tree> empty_nodes) {
 		String_1[] parts = this.data.find_parts(operator_i);
-		String_1 new_expression1 = parts[0].balance_brackets().add_tilda(parts[0].find_operator2().index);
-		String_1 new_expression2 = parts[1].balance_brackets().add_tilda(parts[1].find_operator2().index);
-		//String_1 new_expression1 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets().add_tilda();
-		
-		//String_1 new_expression2 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets().add_tilda();
+		String_1 new_expression1 = parts[0].balance_brackets().add_tilda(parts[0].find_operator().index);
+		String_1 new_expression2 = parts[1].balance_brackets().add_tilda(parts[1].find_operator().index);
 		
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
@@ -382,13 +307,11 @@ public class Tree {
 	}
 	public void branch_false_and(char operator, int operator_i, boolean tilda, ArrayList<Tree> empty_nodes) {
 		String_1[] parts = this.data.find_parts(operator_i);
-		String_1 new_expression1 = parts[0].balance_brackets().add_tilda(parts[0].find_operator2().index);
-		String_1 new_expression2 = parts[1].balance_brackets().add_tilda(parts[1].find_operator2().index);
+		String_1 new_expression1 = parts[0].balance_brackets().add_tilda(parts[0].find_operator().index);
+		String_1 new_expression2 = parts[1].balance_brackets().add_tilda(parts[1].find_operator().index);
 		System.out.println(new_expression1.operator);
 		System.out.println(new_expression2.operator);
-		//String_1 new_expression1 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets().add_tilda();
-		
-		//String_1 new_expression2 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets().add_tilda();
+
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
 			empty_node.set_left(x);
@@ -401,9 +324,8 @@ public class Tree {
 	public void lane_false_if(char operator, int operator_i, boolean tilda, ArrayList<Tree> empty_nodes) {
 		String_1[] parts = this.data.find_parts(operator_i);
 		String_1 new_expression1 = parts[0].balance_brackets();
-		String_1 new_expression2 = parts[1].balance_brackets().add_tilda(parts[1].find_operator2().index);
-		//String_1 new_expression1 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets();
-		//String_1 new_expression2 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets().add_tilda(operator_i);
+		String_1 new_expression2 = parts[1].balance_brackets().add_tilda(parts[1].find_operator().index);
+
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
 			empty_node.set_mid(x);
@@ -418,15 +340,9 @@ public class Tree {
 		String_1 new_expression1 = parts[0].balance_brackets();
 		String_1 new_expression2 = parts[1].balance_brackets();
 		
-		String_1 ne3 = new_expression1.add_tilda(new_expression1.find_operator2().index);
-		String_1 ne4 = new_expression2.add_tilda(new_expression2.find_operator2().index);
-		//String_1 new_expression1 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets();
-		
-		//String_1 new_expression2 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets();
-		
-		//String_1 ne3 = new String_1(this.data.str.substring(0, operator_i - 1)).balance_brackets().add_tilda(operator_i);
-		//String_1 ne4 = new String_1(this.data.str.substring(operator_i + 2, this.data.str.length())).balance_brackets().add_tilda(operator_i);
-		
+		String_1 ne3 = new_expression1.add_tilda(new_expression1.find_operator().index);
+		String_1 ne4 = new_expression2.add_tilda(new_expression2.find_operator().index);
+
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
 			empty_node.set_left(x);
@@ -445,10 +361,7 @@ public class Tree {
 	// ====================================
 	public void evaluate_expression() {
 		System.out.println("======= EVALUATING " + this.data.str + " =======");
-		Tuple operator_index_tilda_tuple = this.data.find_operator2();
-		//char operator = this.data.operator;
-		//int operator_i = this.data.operator_i;
-		//boolean tilda = this.data.tilda;
+		Tuple operator_index_tilda_tuple = this.data.find_operator();
 		
 		char operator = operator_index_tilda_tuple.operator;
 		int operator_i = operator_index_tilda_tuple.index;
