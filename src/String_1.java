@@ -95,7 +95,8 @@ public class String_1 {
 		String_1[] parts = {l_half, r_half};
 		return parts;
 	}
-	public String_1 balance_brackets() { //NEW METHOD		
+	public String_1 balance_brackets() { //NEW METHOD	
+		String_1 new_expression = new String_1();
 		int r_b = 0;		
 		int op_num = 0;
 		System.out.println("Bracket balancing for: " + this.str);
@@ -145,15 +146,90 @@ public class String_1 {
 			}
 			System.out.println("Final expression: " + this.str);
 			System.out.println();
-			return this;
+			new_expression.str = this.str;
+			return new_expression;//this;
 		}else {
 			System.out.println("Final expression: " + this.str);
 			System.out.println();
-			return this;
+			new_expression.str = this.str;
+			return new_expression;//this;
 		}
 	}
-	public Tuple find_operator() {
-		boolean tilda = false;
+	public Prop construct_prop(String_1 expression) {
+		boolean negation = false;
+		boolean necessary = false;
+		boolean possible = false;
+		
+		Tuple tuple1 = expression.find_operator();
+	
+		int operator_i = tuple1.index;
+		String_1[] parts = expression.find_parts(operator_i);
+		
+		String_1 e1 = parts[0].balance_brackets();
+		String_1 e2 = parts[1].balance_brackets();
+		
+		if (e1.str.length() <= 4 && e2.str.length() > 4) { // if the first half is small enough but the second isnt, recurse into the second
+			for (int i = 0; i < e1.str.length(); i ++) {
+				if (e1.str.charAt(i) == '~') {
+					negation = true;
+				}else if (e1.str.charAt(i) == '*') {
+					necessary = true;
+				}else if (e1.str.charAt(i) == '?') {
+					possible = true;
+				}
+			}
+			Prop new_prop1 = new Prop(e1.str.charAt(e1.str.length() - 1), negation, necessary, possible);
+			Prop new_prop2 = new Prop(new_prop1, e2.construct_prop(e2), tuple1.operator, negation, necessary, possible);
+			return new_prop2;
+		}else if (e2.str.length() <= 4 && e1.str.length() > 4) { // if the second half is small enough but the first isnt, recurse into the first
+			for (int i = 0; i < e2.str.length(); i ++) {
+				if (e2.str.charAt(i) == '~') {
+					negation = true;
+				}else if (e2.str.charAt(i) == '*') {
+					necessary = true;
+				}else if (e2.str.charAt(i) == '?') {
+					possible = true;
+				}
+			}
+			Prop new_prop1 = new Prop(e2.str.charAt(e2.str.length() - 1), negation, necessary, possible);
+			Prop new_prop2 = new Prop(e1.construct_prop(e1), new_prop1, tuple1.operator, negation, necessary, possible); // need to find a way to get both necessary and possible
+			return new_prop2;
+		}else if (e2.str.length() <= 4 && e1.str.length() <= 4) { // both sides are atomic, this is the base case, no more recurses after this point
+			boolean e2negation = false;
+			boolean e2necessary = false;
+			boolean e2possible = false;
+			for (int i = 0; i < e1.str.length(); i ++) {
+				if (e1.str.charAt(i) == '~') {
+					negation = true;
+				}else if (e1.str.charAt(i) == '*') {
+					necessary = true;
+				}else if (e1.str.charAt(i) == '?') {
+					possible = true;
+				}
+			}
+			for (int i = 0; i < e2.str.length(); i ++) {
+				if (e2.str.charAt(i) == '~') {
+					e2negation = true;
+				}else if (e2.str.charAt(i) == '*') {
+					e2necessary = true;
+				}else if (e2.str.charAt(i) == '?') {
+					e2possible = true;
+				}
+			}
+			Prop new_prop1 = new Prop(e1.str.charAt(e1.str.length() - 1), negation, necessary, possible);
+			Prop new_prop2 = new Prop(e2.str.charAt(e2.str.length() - 1), e2negation, e2necessary, e2possible);
+			Prop new_prop3 = new Prop(new_prop1, new_prop2, tuple1.operator, tuple1.negation, tuple1.necessary, tuple1.possible);
+			return new_prop3;
+		}else {
+			Prop new_prop = new Prop(e1.construct_prop(e1), e2.construct_prop(e2), tuple1.operator, negation, necessary, possible); // if neither side is small enough, recurse into both
+			return new_prop;
+		}
+		
+	}
+	public Tuple find_operator() { // need to find a way to get both necessary and possible, and their negations either side
+		boolean negation = false;
+		boolean necessary = false;
+		boolean possible = false;
 		int max_diff = 0;
 		char operator = 'z';
 		int operator_i = -1;
@@ -166,37 +242,48 @@ public class String_1 {
 				closing_index = this.find_partner_bracket(i, 'r');
 				opening_index = this.find_partner_bracket(i, 'l');
 				if (opening_index == -2 && closing_index == -2) { // if the char has no brackets
-					Tuple operator_index_tilda_tuple = new Tuple(this.str.charAt(i), i, false);
-					return operator_index_tilda_tuple;
+					Tuple operator_index_negation_tuple = new Tuple(this.str.charAt(i), i, false, false, false);
+					return operator_index_negation_tuple;
 				}else {
 					if (closing_index - opening_index > max_diff) {
 						max_diff = closing_index - opening_index;
 						operator = this.str.charAt(i);
-						operator_i = this.str.indexOf(operator);
+						operator_i = i;
 					}
 					if(this.str.substring(0, opening_index).indexOf('~') != 1) {
-						tilda = true;
+						negation = true;
 					}else {
-						tilda = false;
+						negation = false;
+					}
+					for (int j = 0; j < opening_index; j ++) {
+						if (this.str.substring(opening_index))
 					}
 				}
 			}
 		}
-		Tuple operator_index_tilda_tuple = new Tuple(operator, operator_i, tilda);
-		return operator_index_tilda_tuple;
+		Tuple operator_index_negation_tuple = new Tuple(operator, operator_i, negation);
+		return operator_index_negation_tuple;
 	}
 	public String_1 add_tilda(int operator_i) {
 		if(this.str.length() <= 4) {
 			this.str = '~' + this.str;
+			System.out.println("Tilda added: " + this.str);
+			System.out.println();
 		}else if(this.find_partner_bracket(operator_i, 'l') != -2) {
+			System.out.println("bboopp");
+			System.out.println(this.str.charAt(this.find_partner_bracket(operator_i, 'l') - 1));
 			if(this.str.charAt(this.find_partner_bracket(operator_i, 'l') - 1) == '~') {
 				this.str = '~' + this.str;
+				System.out.println("Tilda added: " + this.str);
+				System.out.println();
 			}
 		}else{
 			this.str = "~(" + this.str + ')';
+			System.out.println("Tilda added: " + this.str);
+			System.out.println();
 		}
-		System.out.println("Tilda added: " + this.str);
-		System.out.println();
+		//System.out.println("Tilda added: " + this.str);
+		//System.out.println();
 		for(int i = 0; i < this.str.length(); i ++) { // removing double negs
 			if(this.str.charAt(i) == '~') {
 				if(this.str.charAt(i + 1) == '~') {
@@ -209,6 +296,7 @@ public class String_1 {
 				}
 			}
 		}
-		return this;
+		String_1 new_expression = new String_1(this.str);
+		return new_expression;//this;
 	}
 }

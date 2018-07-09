@@ -112,12 +112,14 @@ public class Tree {
 		ArrayList<Tree> members = new ArrayList<Tree>();
 		
 		for (Tree compared_node : all_nodes) {
-			if (compared_node.branch_nums.size() == empty_node.branch_nums.size()) {
-				if (compared_node.branch_nums.equals(empty_node.branch_nums)) {
+			if (compared_node.branch_nums.size() <= empty_node.branch_nums.size()) {
+				if (compared_node.branch_nums.size() == empty_node.branch_nums.size()) {
+					if (compared_node.branch_nums.equals(empty_node.branch_nums)) {
+						members.add(compared_node);
+					}
+				}else if (compared_node.branch_nums.equals(empty_node.branch_nums.subList(0, compared_node.branch_nums.size()))) {
 					members.add(compared_node);
 				}
-			}else if (compared_node.branch_nums.equals(empty_node.branch_nums.subList(0, compared_node.branch_nums.size()))) {
-				members.add(compared_node);
 			}
 		}
 		return members;
@@ -129,19 +131,19 @@ public class Tree {
 		boolean tilda_1;
 		
 		System.out.println("Branch members: " + members);
+		System.out.println();
 		for(Tree individual_atom : members) {
 			if (individual_atom.data.str.length() <= 2) {
-				System.out.println();
 				System.out.println("Individual atom: " + individual_atom);
 				if (individual_atom.data.str.charAt(0) == '~') {
 					tilda_1 = true;
 				}else {
 					tilda_1 = false;
 				}
-				System.out.println(tilda_1);
 				for(Tree compared_atom : members) {
 					if (compared_atom.data.str.length() <= 2){
 						System.out.println("Compared atom: " + compared_atom);
+						System.out.println();
 						if (tilda_1 == true) {
 							if (compared_atom.data.str.equals(individual_atom.data.str.substring(1))) {
 								System.out.println("CONTRADICTION!");
@@ -168,6 +170,7 @@ public class Tree {
 		ArrayList<Tree> tmp_2 = new ArrayList<Tree>();
 		ArrayList<Tree> all_nodes = this.nodes_and_branches(tmp_2);
 		ArrayList<Tree> empty_nodes = this.find_empty(tmp_1);
+		System.out.println(empty_nodes);
 		int count = 0;
 		for (Tree empty_node : empty_nodes) {
 			if (this.contradictory_branch(empty_node, all_nodes) == true) {
@@ -339,9 +342,15 @@ public class Tree {
 		String_1[] parts = this.data.find_parts(operator_i);
 		String_1 new_expression1 = parts[0].balance_brackets();
 		String_1 new_expression2 = parts[1].balance_brackets();
-		
-		String_1 ne3 = new_expression1.add_tilda(new_expression1.find_operator().index);
-		String_1 ne4 = new_expression2.add_tilda(new_expression2.find_operator().index);
+		System.out.println(new_expression1.str);
+		System.out.println(new_expression2.str);
+		System.out.println(new_expression1.find_operator().index);
+		String_1 ne3 = parts[0].balance_brackets().add_tilda(new_expression1.find_operator().index);
+		String_1 ne4 = parts[1].balance_brackets().add_tilda(new_expression2.find_operator().index);
+		System.out.println(new_expression1.str);
+		System.out.println(new_expression2.str);
+		System.out.println(ne3.str);
+		System.out.println(ne4.str);
 
 		for(Tree empty_node : empty_nodes) {
 			Tree x = new Tree(new_expression1);
@@ -365,64 +374,64 @@ public class Tree {
 		
 		char operator = operator_index_tilda_tuple.operator;
 		int operator_i = operator_index_tilda_tuple.index;
-		boolean tilda = operator_index_tilda_tuple.tilda;
+		boolean negation = operator_index_tilda_tuple.negation;
 		
 		ArrayList<Tree> empty_nodes = new ArrayList<Tree>();
 		empty_nodes = this.find_empty(empty_nodes);
 		
 		if(operator_i != -1) {
 			System.out.println("Parent node: " + this.data);
-			System.out.println("Tuple: " + operator + ", " + operator_i + ", " + tilda);
+			System.out.println("Tuple: " + operator + ", " + operator_i + ", " + negation);
 			System.out.println("Empty nodes: " + empty_nodes);
 			System.out.println();
 			
-			if (operator == 'v' & tilda == false){
-				this.branch(operator, operator_i, tilda, empty_nodes);
+			if (operator == 'v' & negation == false){
+				this.branch(operator, operator_i, negation, empty_nodes);
 				for(Tree new_parent : empty_nodes) {
 					new_parent.left.evaluate_expression();
 					new_parent.right.evaluate_expression();
 				}
-			}else if(operator == '^' & tilda == false) {
-				this.lane(operator, operator_i, tilda, empty_nodes);
+			}else if(operator == '^' & negation == false) {
+				this.lane(operator, operator_i, negation, empty_nodes);
 				for(Tree new_parent : empty_nodes) {
 					new_parent.mid.evaluate_expression();
 					new_parent.mid.mid.evaluate_expression();
 				}
-			}else if(operator == '>' & tilda == false) {
-				this.branch_if(operator, operator_i, tilda, empty_nodes);
+			}else if(operator == '>' & negation == false) {
+				this.branch_if(operator, operator_i, negation, empty_nodes);
 				for(Tree new_parent : empty_nodes) {
 					new_parent.left.evaluate_expression();
 					new_parent.right.evaluate_expression();
 				}
-			}else if(operator == '=' & tilda == false) {
-				this.branch_eq(operator, operator_i, tilda, empty_nodes);
+			}else if(operator == '=' & negation == false) {
+				this.branch_eq(operator, operator_i, negation, empty_nodes);
 				for(Tree new_parent : empty_nodes) {
 					new_parent.left.evaluate_expression();
 					new_parent.left.mid.evaluate_expression();
 					new_parent.right.evaluate_expression();
 					new_parent.right.mid.evaluate_expression();
 				}
-				// Now if tilda is true ================================
-			}else if(operator == 'v' &tilda == true) {
-				this.lane_false_or(operator, operator_i, tilda, empty_nodes);
+				// Now if negation is true ================================
+			}else if(operator == 'v' &negation == true) {
+				this.lane_false_or(operator, operator_i, negation, empty_nodes);
 				for(Tree new_parent : empty_nodes) {
 					new_parent.mid.evaluate_expression();
 					new_parent.mid.mid.evaluate_expression();
 				}
-			}else if(operator == '^' & tilda == true) {
-				this.branch_false_and(operator, operator_i, tilda, empty_nodes);
+			}else if(operator == '^' & negation == true) {
+				this.branch_false_and(operator, operator_i, negation, empty_nodes);
 				for(Tree new_parent : empty_nodes) {
 					new_parent.left.evaluate_expression();
 					new_parent.right.evaluate_expression();
 				}
-			}else if(operator == '>' & tilda == true) {
-				this.lane_false_if(operator, operator_i, tilda, empty_nodes);
+			}else if(operator == '>' & negation == true) {
+				this.lane_false_if(operator, operator_i, negation, empty_nodes);
 				for(Tree new_parent : empty_nodes) {
 					new_parent.mid.evaluate_expression();
 					new_parent.mid.mid.evaluate_expression();
 				}
-			}else if(operator == '=' & tilda == true) {
-				this.branch_false_eq(operator, operator_i, tilda, empty_nodes);
+			}else if(operator == '=' & negation == true) {
+				this.branch_false_eq(operator, operator_i, negation, empty_nodes);
 				for(Tree new_parent : empty_nodes) {
 					new_parent.left.evaluate_expression();
 					new_parent.left.mid.evaluate_expression();
